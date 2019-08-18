@@ -41,7 +41,7 @@ private:
     QAction* find_Action;
     QAction* findNext_Action;
     QAction* selectAll_Action;
-    QAction* dataAndTime_Action;
+    QAction* dateAndTime_Action;
     QAction* autoChangeLine_Action;
     QAction* leftAlignment_Action;
     QAction* rightAlignment_Action;
@@ -57,13 +57,13 @@ private:
     QMenu* help_Menu;
  
     QTextEdit* editor_TextEdit;
-public:
-    ReadTxt(QWidget* parent = 0);
-private:
+
     void createAction();   //注释3
     void createMenu();
     void createMenuBar();
     void connectSignalAndSlot();
+public:
+    ReadTxt(QWidget* parent = 0);
 };
 ```
 
@@ -94,7 +94,7 @@ void ReadTxt::createAction()
     find_Action = new QAction("查询",this);
     findNext_Action = new QAction("查询下一个",this);
     selectAll_Action = new QAction("全选",this);
-    dataAndTime_Action = new QAction("日期/时间",this);
+    dateAndTime_Action = new QAction("日期/时间",this);
  
     autoChangeLine_Action = new QAction("自动换行",this);
     leftAlignment_Action = new QAction("左对齐",this);
@@ -134,7 +134,7 @@ void ReadTxt::createMenu()
     edit_Menu->addAction(findNext_Action);
     edit_Menu->addSeparator();               
     edit_Menu->addAction(selectAll_Action);
-    edit_Menu->addAction(dataAndTime_Action);
+    edit_Menu->addAction(dateAndTime_Action);
  
     format_Menu = new QMenu("格式");
     format_Menu->addAction(autoChangeLine_Action);
@@ -145,9 +145,9 @@ void ReadTxt::createMenu()
     format_Menu->addSeparator();
     format_Menu->addAction(font_Action);
  
-    Help_Menu = new QMenu("帮助");
-    Help_Menu->addAction(findHelp_Action);
-    Help_Menu->addAction(about_Action);
+    help_Menu = new QMenu("帮助");
+    help_Menu->addAction(findHelp_Action);
+    help_Menu->addAction(about_Action);
 }
 ```
 >注释5：同样代码很多，这里分别创建了文件，编辑，合适，帮助这四张菜单，然后将动作QAction添加值对应的菜单，这里可以看到，菜单安装QAction时并没有通过布局管理器。唯一需要注意的是类QMenu的成员函数addSeparator(),这个函数的作用是在菜单中画出一条横向分割线
@@ -195,9 +195,9 @@ FindDialog* find_Dialog;
 ```
 然后在ReadTxt的构造函数里对他初始化
 ```c++
-find_Dialog = null;   //注释10
+find_Dialog = nullptr;   //注释10
 ```
->注释10：????是不是吃了一惊，为啥这里直接给他复制为null啊？没关系，稍后解释为什么这么做。
+>注释10：????是不是吃了一惊，为啥这里直接给他复制为NULL啊？没关系，稍后解释为什么这么做。
 
 在添加完FindDialog后，我们希望的功能时，每次点击菜单“查询”的时候，都会显示这个对话框，而Qt的窗体创建时默认是隐藏的，所以第一步想到的就是通过信号与槽的连接，每次用户点击时，就创建一个FindDialog并显示，用户关闭时就删除FindDialog，但这里遇到一个问题，当用户再次点击“查询”时，如果FindDialog处于最小化状态呢？
 
@@ -220,10 +220,10 @@ void ReadTxt::connectSignalAndSlot()
 ```c++
 void ReadTxt::showFindDialog()
 {
-    if(find_Dialog != null)
+    if(find_Dialog == nullptr)
         find_Dialog = new FindDialog(this);   //注释12
     find_Dialog->show();
-    find_Dialog->Raise();
+    find_Dialog->raise();
     find_Dialog->activateWindow();    //注释13
 }
 ```

@@ -48,7 +48,7 @@ void FindDialog::findWords()
 
 最后一步是在FindDialog的构造函数中将“查询”按钮和这个槽链接起来
 ```c++
-connect(Find_PushButton,SIGNAL(clicked()),this,SLOT(FindWords()));
+connect(find_PushButton,SIGNAL(clicked()),this,SLOT(FindWords()));
 ```
 这样，当点击“查询”按钮时，就会链接到槽FindWords()，然后这个槽（成员函数）获取对话框的文本内容，大小写，查询方向信息，然后把这3个信息以信号的方式发射出去
 
@@ -93,9 +93,9 @@ QMessageBox还提供了warning(),question(),critical()函数，他们有自己�
 3.主程序的槽findWordInText()使用这些信息，调用QTextEdit的成员函数find()来完成查询功能
 
 ## 删除菜单
-在完成查询功能后，还需要实现删除功能，在ReadTxt.h中添加一个私有槽DeleteSelectText（）然后在ReadTxt.cxx中实现这个槽的功能
+在完成查询功能后，还需要实现删除功能，在ReadTxt.h中添加一个私有槽deleteSelectText()然后在ReadTxt.cxx中实现这个槽的功能
 ```c++
-void ReadMe::deleteSelectText()
+void ReadTxt::deleteSelectText()
 {
     editor_TextEdit->textCursor().removeSelectedText();    //注释8
 } 
@@ -106,7 +106,7 @@ void ReadMe::deleteSelectText()
 
 然后是日期/时间功能，这个功能对应的槽是dateAndTime()，具体实现为
 ```c++
-void ReadMe::DateAndTime()
+void ReadTxt::dateAndTime()
 {
   editor_TextEdit->insertPlainText(QDateTime::currentDateTime().toString());    //注释9
 } 
@@ -116,7 +116,7 @@ void ReadMe::DateAndTime()
 
 到这里就完成了编辑菜单上剩余的功能，需要做的就是在connectSignalAndSlot()函数中添加连接
 ```c++
-connect(findNext_Action,SIGNAL(triggered()),this,SLOT(findNextWord()));
+connect(findNext_Action,SIGNAL(triggered()),this,SLOT(showFindDialog()));
 connect(delete_Action,SIGNAL(triggered()),this,SLOT(deleteSelectText()));
 connect(dateAndTime_Action,SIGNAL(triggered()),this,SLOT(dateAndTime()));
 ```

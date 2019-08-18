@@ -161,7 +161,7 @@ ReadTxt::ReadTxt(QWidget* parent):QMainWindow(parent)
     setHotKey();
     editor_TextEdit = new QTextEdit;
     setCentralWidget(editor_TextEdit);
-    findWordsDialog = null;
+    find_Dialog = nullptr;
     setWindowTitle("记事本");
     connectSignalAndSlot();
 }
