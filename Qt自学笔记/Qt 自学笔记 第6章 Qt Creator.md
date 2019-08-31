@@ -49,12 +49,13 @@ class GuiLayout;
 而这个自动生成的类成为了GuiLayout类的成员，当然GuiLayout的类定义文件也出现相应的变化
 
 双击"GuiLayout.ui"文件，就会进入Qt Creator的可视化编辑模式，其中有3个比较重要的区域
+![](https://github.com/jxf2008/blog/raw/master/pix/Qt自学笔记pix/6-9.png)
 
-1.<font color=yellow>控件区</font>，这里包含了Qt的控件
+1. <font color=yellow>控件区</font>，这里包含了Qt的控件
 
-2.<font color=red>编辑区</font>，这里其实就是对话框GuiLayout的界面，上面什么都没有，可以将需要的控件从控件区拖放至编辑区，然后通过鼠标的拖动来改变控件的位置和大小
+2. <font color=red>编辑区</font>，这里其实就是对话框GuiLayout的界面，上面什么都没有，可以将需要的控件从控件区拖放至编辑区，然后通过鼠标的拖动来改变控件的位置和大小
 
-3.<font color=green>控件属性区</font>，选择编辑区的一个控件，然后在这个区域设置控件的属性，基本上控件的各个属性都可以在这里设置，而不用在GuiLayout类中实现
+3. <font color=green>控件属性区</font>，选择编辑区的一个控件，然后在这个区域设置控件的属性，基本上控件的各个属性都可以在这里设置，而不用在GuiLayout类中实现
 
 注意，这里的控件区，编辑区和控件属性区是我起的名字，我并不知道他们的官方名字叫什么。。。
 
@@ -71,6 +72,7 @@ grid_Layout->addWidget(widget,row,column,rSpan,cSpan);
 ```
 其中rSpan,cSpan表示控件在网格中占据的大小，默认每个控件占据1行和1列，这个**QGridLayout**在大量重复控件的布局中非常有用，比如我写过一个[扫雷](https://github.com/jxf2008/MineLand)，类似这个样子
 ![](https://github.com/jxf2008/MineLand/raw/master/扫雷.png)
+
 在一个界面上放置了15X15个按钮，通过**QGridLayout**实现非常简单
 ```c++
 QGridLayout* main_Layout = new QGridLayout;
