@@ -7,6 +7,7 @@
 ## 查询对话框
 
 首先，他的界面是这个样子的
+![](https://github.com/jxf2008/blog/raw/master/pix/Qt自学笔记pix/5-1.png)
 
 这个对话框和windows记事本的对话框很相似，这个对话框中除了前面章节已经介绍过的QLabel和QPushButton外，还使用了
 
@@ -215,6 +216,8 @@ void FindDialog::findIsEnabled(const QString& str)   //注释11
 2.可能你已经发现这个程序不再想以前那样，“一点点内存泄漏关系不大”，内存是否泄漏很重要，前面的章节之所以演示一些错误的做法是希望你不要犯类似的问题，具体的情况很快就会讲述
 
 3.如果你熟悉windows的记事本程序，你会发现，他的对话框和这个有些不同，差不多应该是这个样子
+
+![](https://github.com/jxf2008/blog/raw/master/pix/Qt自学笔记pix/5-2.png)
 
 这里查询方向使用了QGroupBox和QRadioBox的组合，关于这两个窗体部件使用可以参加Qt Assistant，然后写一个这样的程序
 
