@@ -86,6 +86,6 @@ for(int rows = 0 ; rows < MINE_COUNT ; ++rows)
     }
 }
 ```
->注释1 这里的mine_List用于存放自定义控件的MineButton的指针
++ 注释1 这里的mine_List用于存放自定义控件的MineButton的指针
 
 然后你可以尝试下使用可视化的方式来完成这个布局
