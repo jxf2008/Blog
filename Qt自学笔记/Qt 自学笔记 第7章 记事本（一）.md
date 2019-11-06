@@ -2,7 +2,7 @@
 接下来的几章将介绍如何制作在上一章提到的window记事本程序，这个程序本身并不复杂，但因为为需要穿插介绍一些其他内容，所以这个过程会显得比较长。在这一章里将先演示窗体的制作。
 
 我们先把程序的界面做好，完成后的程序应该是这个样子的
-![](https://github.com/jxf2008/blog/raw/master/pix/Qt自学笔记pix/7-1.png)
+![](https://github.com/jxf2008/blog/raw/master/pix/QtNotes/7-1.png)
 
 这里简单介绍下Qt的最基本的3个窗体，QWidget,QDialog和QMainWindow。
 

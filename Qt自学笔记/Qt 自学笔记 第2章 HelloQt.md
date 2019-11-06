@@ -56,11 +56,11 @@ nmake
 ```
 然后程序很快就编译好了，进入debug子目录，里边有个"p2.exe"(文件名没有设置的话，默认是目录名)，运行这个exe程序，差不多是这个样子
 
-![](https://github.com/jxf2008/blog/raw/master/pix/Qt自学笔记pix/2-1.png)
+![](https://github.com/jxf2008/blog/raw/master/pix/QtNotes/2-1.png)
 
 样子挺丑的，当然你可以把窗体拉伸下
 
-![](https://github.com/jxf2008/blog/raw/master/pix/Qt自学笔记pix/2-2.png)
+![](https://github.com/jxf2008/blog/raw/master/pix/QtNotes/2-2.png)
 
 >兴奋ing..
 
