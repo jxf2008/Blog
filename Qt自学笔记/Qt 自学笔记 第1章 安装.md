@@ -11,6 +11,7 @@ Qt 5.7是最后一个支持Window XP的版本,如果你希望你的程序能够�
 >1
 
 在下载完exe文件后，双击运行,点击“下一步”后会要求你添加一些账号，密码之类的信息，如下图
+
 ![](https://github.com/jxf2008/blog/raw/master/pix/QtNotes/1-1.png)
 
 这里直接选择"skip"
