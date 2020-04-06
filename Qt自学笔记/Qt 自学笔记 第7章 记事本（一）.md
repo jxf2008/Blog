@@ -3,7 +3,7 @@
 
 我们先把程序的界面做好，完成后的程序应该是这个样子的
 
-![](http://q2ed5th2b.bkt.clouddn.com/7-1.png)
+![](https://github.com/jxf2008/blog/raw/master/pix/QtNotes/7-1.png)
 
 这里简单介绍下Qt的最基本的3个窗体，QWidget,QDialog和QMainWindow。
 
