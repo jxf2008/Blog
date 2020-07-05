@@ -14,6 +14,8 @@ Qt 5.7是最后一个支持Window XP的版本,如果你希望你的程序能够�
 
 ![](https://github.com/jxf2008/blog/raw/master/pix/QtNotes/1-1.png)
 
+![](https://postimg.cc/PPHcqyZW)
+
 这里直接选择"skip"
 
 
