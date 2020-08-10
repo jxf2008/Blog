@@ -59,7 +59,7 @@ int main(int argc , char** argv)
 
 这段代码编译后运行，应该是这个样子
 
-![](https://github.com/jxf2008/blog/raw/master/pix/QtNotes/3-1.png)
+![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/QtNotes/3-1.png)
 
 然后我们来详细看下代码中注释的地方
 
@@ -79,13 +79,13 @@ int main(int argc , char** argv)
 
 对于很多窗体来说，视觉效果是个很重要的组成部分，对于上面一个窗体来说，上面布局似乎有点太不协调了，也许有人希望界面是这个样子的。
 
-![](https://github.com/jxf2008/blog/raw/master/pix/QtNotes/3-2.png)
+![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/QtNotes/3-2.png)
 
 这里就提出了一个要求，如何让按钮g和按钮h位于最左侧呢？这里就用到弹簧了，按钮g和h都是按顺序放入了一个水平方向的布局管理器中，这时候我们在这个布局管理器中再添加一个弹簧就能达到这个效果了，这就是注释4-2中函数addStretch()的作用，现在我们把注释4-2的代码注释取消掉再编译，就可以得到这样的效果了(先别把注释4-1取消)
 
 然后我们把窗体拉伸一下
 
-![](https://github.com/jxf2008/blog/raw/master/pix/QtNotes/3-3.png)
+![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/QtNotes/3-3.png)
 
 这样弹簧的效果可以更明显的显示出来。
 
@@ -95,11 +95,11 @@ int main(int argc , char** argv)
 
  关于上面的按钮拜访，也可以作出下面这个样子
 
- ![](https://github.com/jxf2008/blog/raw/master/pix/QtNotes/3-2.png)
+ ![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/QtNotes/3-2.png)
 
 看起来似乎是和上面的例子是一样的，但我们拉伸一下就看出区别了
 
-![](https://github.com/jxf2008/blog/raw/master/pix/QtNotes/3-4.png)
+![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/QtNotes/3-4.png)
 
 第一个例子，我们使用的是3个垂直的布局管理器（QVBoxLayout),然后用一个水平的布局管理器（QHBoxLayout）作为<font color=pink>父布局管理器</font>，而这个例子，则使用了3个水平布局管理器，然后用一个垂直布局管理器作为<font color=pink>父布局管理器</font>。其实本质就是更换了布局管理器嵌套的方式，有兴趣的可以自己实现下。
 

@@ -7,7 +7,7 @@ Qt中使用一种qrc格式的文件来作为添加资源的文件，注意这里
 
 2.建立一个.qrc文件，例子中是pix.qrc，文件名并没有限制，只要符合系统要求（貌似这是废话，文件名如果非法的话，系统也不让创建。。）具体内容为XML格式 。然后在QtCreator中选择“添加已经存在的文件”，把该文件添加入项目即可。或者可以在QtCreator上右键项目，选择“Add New”,然后选择“Qt”的“Qt Source File”
 
-![](https://github.com/jxf2008/blog/raw/master/pix/QtNotes/8-1.png)
+![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/QtNotes/8-1.png)
 
 点击“确定”后，填入文件名就可以了，比如这个例子我的文件名填写的是pix。然后工程下多了一个Resources的目录，目录下有个文件pix.qrc
 

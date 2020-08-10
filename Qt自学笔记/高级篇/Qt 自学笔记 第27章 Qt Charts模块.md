@@ -10,7 +10,7 @@
 
 这一章先利用24和25章的示例程序PatientRecord介绍一个简单的饼状图。在演示程序PatientRecord中，在表格年龄这一列中，我们使用颜色来区别不同的年龄段，这样可以提示医生在输入年龄的时候可能出现的错误，这样尽可能的减少出错的可能性。但或许可以用另一种更加直观发方式来显示这个问题，比如下图这样
 
-![](https://github.com/jxf2008/blog/raw/master/pix/QtNotes/27-1.png)
+![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/QtNotes/27-1.png)
 
 我们在程序的右侧添加了一个窗体，这个窗体是一个圆形图标，他显示的是左侧表格年龄段分布比例，对比下，左侧的年龄字段里颜色有可能没看清楚，但右侧分布图里很清楚的显示里这里存在有可能错误的颜色（红色）。而右侧的这个窗体正是使用QtCharts模块来完成的。
 
@@ -131,7 +131,7 @@ void PatientRecord::createAllPieView()
 
 首先说明下，线形图和上面的饼状图一样是我临时起的名字用于方便描述问题，准确的翻译可能不是这个。
 
-![](https://github.com/jxf2008/blog/raw/master/pix/QtNotes/27-2.png)
+![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/QtNotes/27-2.png)
 
 在图表中，线形同样是个非常常见的图表，类似下面这样,要实现这样一个示例非常简单，需要用到Qt Charts模块的QSplineSeries类，这个类类似于上面的QPieSeries，不同的是QSplineSeries并没有自己的部件
 ```c++

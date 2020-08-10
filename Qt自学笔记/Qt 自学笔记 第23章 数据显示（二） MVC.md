@@ -8,7 +8,7 @@ MVC(Model View Control)是在前一章里提到的模型/视图的概念，其�
 
 ## 显示表
 
-![](https://github.com/jxf2008/blog/raw/master/pix/QtNotes/23-1.png)
+![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/QtNotes/23-1.png)
 
 这是一个很简单的数据库查看软件，通过这个程序可以显示制定数据库里的全部数据。首先看下这个程序界面，这个程序有两张“表”，左边的是数据库里所有的表的名字，而右边则是每张表的具体内容，当用户点击左边的某一个表名的时候，右侧便会显示用户选择的表的数据。对于sqlite3数据库来说，有一张默认表，sqlite_master,会记录数据库里所有的表名（以及表其他的相关信息），所以我们要做的就是在程序界面的左边显示sqlite_master这张表，而在右侧显示其他表。
 
