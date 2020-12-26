@@ -2,29 +2,29 @@
 
 **事实上，我绝对不会反对你将类成员设为公有，因为那和我没关系。。**
 
-开始整体
+开始正题！！！
 
 ## 第一步
 对于一个类的定义
 ```c++
 class Human_protected{
 protected:
-    double Age;
+    double age;
     std::string nm;
 public:
-    void GetName(std::string NewName){nm = NewName;}
+    void setName(std::string newName){nm = newName;}
 };
 ```
 他还有另一个“写法”
 ```c++
 class Human_private{
 private:
-    double Age;
+    double age;
     std::string nm;
 public:
-    std::string GetName()const{return nm;}
-    double GetAge()const{return Age;}
-    void GetName(std::string NewName){nm = NewName}； 
+    std::string getName()const{return nm;}
+    double getAge()const{return Age;}
+    void setName(std::string newName){nm = newName}； 
 };
 ```
 这两个类将会作为基类，而他们类成员的值需要在继承类中使用，于是一个类将他的成员设为protected，以方便继承他的类的使用，而另一个类更侧重封装，将类成员设为私有，如需使用他们的值则需要调用类成员函数
@@ -43,20 +43,20 @@ public:
 ```c++
 class Worker_protected:public Human_protected{
 private:
-    double Pay;  //工资
-    std::string TechType;  //技术工种名称
+    double pay;  //工资
+    std::string technology;  //工人擅长的技术名称
 public:
-    void ShowInfo()const;
+    void showInfo()const;
 };
 ```
 他的另一种“写法”其实完全一样
 ```c++
 class Worker_private:public Human_private{
 private:
-    double Pay;
-    std::string TechTypeSchool;
+    double pay;
+    std::string technology;
 public:
-    void ShowInfo()const;
+    void showInfo()const;
 };
 ```
 
@@ -64,15 +64,15 @@ public:
 ```c++
 void Worker_protected::ShowInfo()const{
     std::cout<<"Name:"<<nm<<std::endl;
-    std::cout<<"Age:"<<Age<<std::endl;
-    std::cout<<"Technology Name :"<<TechType<<std::endl;
+    std::cout<<"Age:"<<age<<std::endl;
+    std::cout<<"Technology Name :"<<technology<<std::endl;
 }
 
 //----------------------
 void Student_private::ShowInfo()const{
-    std::cout<<"Name:"<<GetName()<<std::endl;  //区别
-    std::cout<<"Age:"<<GetAge()<<std::endl;  //区别
-    std::cout<<"Technology Name :"<<TechType<<std::endl;
+    std::cout<<"Name:"<<getName()<<std::endl;  //区别
+    std::cout<<"Age:"<<getAge()<<std::endl;  //区别
+    std::cout<<"Technology Name :"<<technology<<std::endl;
 }
 ```
 这里的区别在于，对于protected成员nm和Age，继承他的类可以直接在成员函数中调用，而对于私有成员，继承他的类要使用他们的值必须使用基类的成员函数.我们再次统计两个继承类的优劣势
@@ -85,18 +85,18 @@ void Student_private::ShowInfo()const{
 这里protected再次取胜,不过实际的软件设计往往会比较复杂，所以我们继续
 
 ## 第三步
-对于一个表示工人（worker)的类来说，他需要的功能远远不止显示信息（ShowInfo()函数）怎么多，我们需要加入更多的函数来完善这个类
+对于一个表示工人（worker)的类来说，他需要的功能远远不止显示信息（showInfo()函数）怎么多，我们需要加入更多的函数来完善这个类
 ```c++
-void GetInfo(const std::string& NM , int ages , const std::string& techtype) //录入信息
-void CountPay(int Hours);  //计算工资，小时数*工资数 +工种工资，不同的共种待遇不同
-void ShowPay()const; //显示格式 （张三 ：2000元）
-void ShowHoliday(int Hours)const; //显示格式 （李四：已用年假5小时）
+void getInfo(const std::string& newName , int ages , const std::string& techtype) //录入信息
+void countPay(int h);  //计算工资，小时数*工资数 +工种工资，不同的共种待遇不同
+void showPay()const; //显示格式 （张三 ：2000元）
+void showHoliday()const; //显示格式 （李四：已用年假5小时）
 //。
 //。
 //。
 //。
 ```
-以上成员函数实现Worker类的功能，包括录入信息，计算，显示工人的工资，显示他已经请的年假，等等，这些函数都除CountPay()外，都使用到了基类的成员变量nm（姓名）.当然这些对于一个Worker类任然不够，我们假设还有其他10个成员函数（其实还是不够，但已经足够说明我们今天需要讨论的问题）来实现Worker类。这些函数都有一个共同特点，他们需要使用到基类的成员变量nm,调用方式第二步已经说明了。
+以上成员函数实现Worker类的功能，包括录入信息，计算，显示工人的工资，显示他已经请的年假，等等，这些函数都除CountPay()外，都使用到了基类的成员变量nm（姓名）.当然这些对于一个Worker类任然不够，我们假设还有其他10个成员函数（也许还是不够，但已经足够说明我们今天需要讨论的问题）来实现Worker类。这些函数都有一个共同特点，他们需要使用到基类的成员变量nm,调用方式第二步已经说明了。
 
 现在protected和private的优劣势越发明显，随着继承类（需要使用基类成员变量的）成员函数增多，private需要调用跟多次的函数，写更多的字母。。
 
@@ -110,7 +110,7 @@ void ShowHoliday(int Hours)const; //显示格式 （李四：已用年假5小时
 
 据此，你的老板要求你用一个六位编号（数字）来代替姓名，因为每个工厂里的每个工人入职是都会分配一个唯一的六位编号,不用担心重复以及隐私的问题
 
-对于Worker_private类来说，你可以把基类Human_private中的成员变量std::string nm直接注释掉（不注释也许，反正留着也不会造成什么影响)，然后增加一个新的类变量int number,在GetName()中把新变量number转换成int即可
+对于Worker_private类来说，你可以把基类Human_private中的成员变量std::string nm直接注释掉（不注释也许，反正留着也不会造成什么影响)，然后增加一个新的类变量int number,在getName()中把新变量number转换成int即可
 
 即把函数
 ```c++
@@ -126,7 +126,7 @@ std::string getName()const{
 ```
 就可以了，你根本不用考虑继承他的类，继承他的类都调用getName()函数获得一个string,继承他的所有类（包含所有的子子孙孙）都不要为此做任何修改,然后当你再次编译运行程序时，你发现程序里所有员工的姓名都变成了一串数字。
 
-然后我们来看Human_protected类，他同样需要修改，你第一个想到的办法可能是和上面Human_private类一样，增加一个int Number类成员。但不同于Human_private,Human_protected类在里的成员nm处理就会比较棘手，首先，你可以不删除这个已经废弃的变量，但如果不删除这个成员变量，你无法确定继承该类的类会不会使用到该成员变量，也就是说，只要不删除改变量，你程序编译运行后，你的程序某个位置任然可能直接显示员工的姓名若不是编号，这就可能导致泄露隐私的问题，要知道在今天，泄露员工隐私可是个大问题。。。。。作为一名严谨的程序员，未了程序的安全可靠性，你在做这样的修改后把这个程序其他的代码全部都检查了一遍。。。。
+然后我们来看Human_protected类，他同样需要修改，你第一个想到的办法可能是和上面Human_private类一样，增加一个int number类成员。但不同于Human_private,Human_protected类在里的成员nm处理就会比较棘手，首先，你可以不删除这个已经废弃的变量，但如果不删除这个成员变量，你无法确定继承该类的类会不会使用到该成员变量，也就是说，只要不删除改变量，你程序编译运行后，你的程序某个位置任然可能直接显示员工的姓名若不是编号，这就可能导致泄露隐私的问题，要知道在今天，泄露员工隐私可是个大问题。。。。。作为一名严谨的程序员，未了程序的安全可靠性，你在做这样的修改后把这个程序其他的代码全部都检查了一遍。。。。
 
 当然，你也可以选择直接注释掉已经废弃的成员变量nm，结果。。。
 ```c++
@@ -140,11 +140,16 @@ std::cout<<nm;
 ```
 的代码，他可以继续正常执行（有原来的输出string变成输出int),但对于
 ```c++
-std::string Info = nm + TechType;
+std::string info = nm + ":" + technology;  //注释1
+std::string tax = taxObject + nm;     //注释2
 ```
-这样的代码，，直接修改变量类型依然会出错。所有的情况，最后的解决办法是一样的，那就是你必须检查所有继承类的代码，以确保修改基类后，这些继承类任然能正确的执行他们的功能
+这样的代码，直接修改变量类型依然会出错。
++ 注释1 这种情况相对好一点，在编译阶段编译器就会报错，当然实际上也好不到哪去，你都要修改
++ 注释2 这种情况最糟糕，taxObject是一个类对象，该类重载了+，可以处理string和int,因此，当你把nm的类型从string改为int时，该行代码很可能通过编译，并且可以运行，当然运行的结果**有时候**不会和预期的一致，这就造成了编程中相当棘手的问题————不可复现的BUG。
 
->结论：对于类成员未protected的基类的类成员的修改结果就是你必须检查整个程序以确保修改后的正确性。
+所有的情况，最后的解决办法是一样的，那就是你必须检查所有继承类的代码，以确保修改基类后，这些继承类任然能正确的执行他们的功能
+
+>结论：对于类成员为protected的基类的类成员的修改结果就是你必须检查整个程序以确保修改后的正确性。
 
 当然对于我现在写的例子来说这没什么，毕竟这只有几行代码，但如果你的项目比较大呢？现在你有没有隐隐约约的意识到一些问题？
 
@@ -159,7 +164,7 @@ std::string Info = nm + TechType;
 
 最后，公司人员的增加使得员工重名的几率增大，工资发错人之类的现象不时出现
 
-由于std::string Name涉及了1000多个类和其中大约12000个成员函数，所以你要把这些全部逐一检查，修改（必须怎么做的原因就和第四步所说的一样）。当然，你还必须在几个月内完成软件剩余部分的同时完成这些工作（实时上需要修改的代码占了已完成部分的大多数）。。。。。你尝试在上一步中的方法，直接用替换，但是的程序员告诉你，无法保证修改后程序还能正确的执行，用为很多地方有std::string Name和另一个std::string相加的代码,但你的程序员很难准确的记住所有，毕竟人类的记忆很难记住如此庞大的代码。。
+由于std::string Name涉及了1000多个类和其中大约12000个成员函数，所以你要把这些全部逐一检查，修改（必须怎么做的原因就和第四步所说的一样）。当然，你还必须在几个月内完成软件剩余部分的同时完成这些工作（实时上需要修改的代码占了已完成部分的大多数）。。。。。你尝试在上一步中的方法，直接用替换，但是的程序员告诉你，无法保证修改后程序还能正确的执行，用为很多地方有std::string Name和另一个std::string或者自定义类相加的代码,但你的程序员很难准确的记住所有，毕竟人类的记忆很难记住如此庞大的代码。。
 
 现在你面临着到时间不能完成而支付巨额违约金的问题，或者你先发制人去控告客户提出了合同外的要求，但眼下最重要的问题在于你的一亿美元很有可能拿不到了，而这两年公司的开支都依赖银行贷款。。。。
 
@@ -175,7 +180,7 @@ std::string Info = nm + TechType;
 
 对于第三方的C++类库，市场上有很多，图像库Qt,微软的MFC图形库，甚至Boost库，你迫切的希望把你的类库出售，让尽可能多的人来购买你的拷贝。为此，你为你的C++类库写了一份说明文档，这份文档和我们常见的文档有所不同，他比较厚。。。。
 
-之所以比较厚，原因在于上面有一份关键词列表，上面也许有五万甚至十万个关键词，你告诉你（潜在的）客户，这些关键字以后的版本有可能会被删除，如果其中有个变量被删除了，请检查整个程序，确保和该变量有关的代码都已经做了相应的修改。。。。。。
+之所以比较厚，原因在于上面有一份关键词列表，上面也许有五万甚至十万个关键词，你告诉你（潜在的）客户，这些关变量以后的版本有可能会被删除或修改，如果其中有个变量被删除或修改了，请检查整个程序，确保和该变量有关的代码都已经做了相应的修改。。。。。。
 
 **你有没有担心过被人打死在当场？**
 
@@ -188,12 +193,12 @@ int getPrintID()const{
 ```      
 然后你在你更新类库的文档加上这么一句，“原先的接口(getPrintID())已被声明废弃，但仍保留其接口（值固定为1）用作和以前的代码兼容，但会在将来的某个时间移除。”
 
-这句话是不是很熟悉？相信你以前看文档的时候，如果有版本升级，那肯定会见到类似的话，没错啦，其实这句话翻译过来就是，”变量我删了，你如果还用这个变量的话他是个固定的值，我代码里原来用到的地方我以后会逐一修改，但目前没时间，具体修改完成是在将来的某个时间。。。。“
+这句话是不是很熟悉？相信你以前看文档的时候，如果有版本升级，那肯定会见到类似的话。。。。。。
 
 
 ## 第七步
 
-假设你的公司是一家极具韧性的公司，你的员工在你的带领下客服了第六步我所述的困难，而且你也找到了一个优质客户，他也不再现在你终于有了第一个客户，一切想着好的方向在发展
+假设你的公司是一家极具韧性的公司，你的员工在你的带领下客服了第六步我所述的困难，而且你也找到了一个优质客户，他刚好需要你的类库，一切想着好的方向在发展
 
 你的类库中的一个类，其中有个变量这个表示某个硬件设备的可设置功率，最大为9，最小为0（即关闭状态）；
 ```c++
