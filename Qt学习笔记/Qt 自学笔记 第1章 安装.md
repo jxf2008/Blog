@@ -31,6 +31,8 @@ Qt 5.7是最后一个支持Window XP的版本,如果你希望你的程序能够�
 
 ![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/QtNotes/1-3.png)
 
+这里很多人会有疑问，Qt安装的模块列表里有为什么有2个MingW,一个是5.12.3目录下，另一个是Tools目录下。这里解释下，5.12.3目录下的MingW里面包含了MingW编译需要的文件。而Tool目录下的则是MingW编译器，如果你的电脑里已经安装了MingW编译器，那Tool目录下的MingW可以选择不安装，等Qt安装完成后再设置编译器的路径，如果你对这些不熟悉，建议把这两个模块都勾选。
+
 4. 接下来是你需要遵守（或者说选择）的协议，Qt属于开源软件，使用的话同样需要遵循一些协议，当然，如果你只是用来学习的话，协议什么的就没什么好看的了，直接选第一个就行
 
 ![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/QtNotes/1-4.png)
@@ -49,6 +51,8 @@ Qt 5.7是最后一个支持Window XP的版本,如果你希望你的程序能够�
 **~\Qt\Tools\mingw730_64\bin**
 
 **~\Qt\Tools\QtCreator\bin**
+
+其中~\Qt\5.12.3\mingw73_64\bin这里包含了编译Qt需要的各种（MingW版的）文件，~\Qt\Tools\mingw730_64\bin包含了MingW编译器，里面包括了gcc.exe,g++.exe等，~\Qt\Tools\QtCreator\bin包括的Qt自带的工具QtCreator。
 
 这三个加入环境变量,如何添加环境变量根据你使用的操作系统可能会略有不同，详细请自行[谷歌](www.google.com)/[Bing](www.bing.com)/[百度](www.baidu.com)。。。。。
 

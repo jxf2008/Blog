@@ -148,8 +148,7 @@ void ReadTxt::setHotKey()
 }
 ```
 + 注释5：以“打开”为例，其实这样里可以写成setShortcut("Ctrl+O")来实现功能，但就如前文所述，不同平台的快捷键是不完全一样的（虽然Ctrl+O各平台都有相同功能，但不是每个快捷键都这样），所以用QKeySequence类实现比在代码中写死要更加灵活，当代码需要跨平台是更加如此。QkeSequence提供了大量的快捷键，内容太多无法在这里全部列出，可以在Qt Assistant中查询该类，看看里面是否有你需要的快捷键
-            
-              
+
 到这里我们完成了记事本程序的大部分界面制作，下章开始我们将实现他的各项功能，这里再次给出ReadTxt程序到目前为止的构造函数的完整代码
 ```c++
 ReadTxt::ReadTxt(QWidget* parent):QMainWindow(parent)

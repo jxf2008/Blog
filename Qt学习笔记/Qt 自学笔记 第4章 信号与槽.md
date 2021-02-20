@@ -108,7 +108,7 @@ public slots:
 ```c++
 connect(this,SIGNAL(changeType(ChessType)),this,SLOT(resetChess(A::ChessType)));
 ```
-这个连接时无法正常工作的，因为在Qt的信号与槽机制中，A::ChessType和ChessType是两个不同类型的参数。
+这个连接是无法正常工作的，因为在Qt的信号与槽机制中，A::ChessType和ChessType是两个不同类型的参数。
 
 3. 信号与槽其实就是类的成员函数，所不同的是信号函数一般只有函数声明还没有函数定义，而槽函数有函数定义来实现具体的功能  ，当然这样只是表明现象，其实信号函数之所以没有代码，是Qt已经做了一些处理，而并非真正的没有代码。而槽函数可以和成员函数一样调用。
 
