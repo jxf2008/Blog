@@ -29,8 +29,7 @@ PS:希望你没把PatientRecord的代码弄丢了。为了区别，这里贴出�
 #include "PatientAgeDelegate.h"
 #include "PatientDateDelegate.h"
 
-class PatientRecord : public QDialog
-{
+class PatientRecord : public QDialog{
     Q_OBJECT
 private:
     QPushButton* pageUp_PushButton;
@@ -76,20 +75,15 @@ QT += charts
 
 接下来看下比较核心的createAllPieView()函数
 ```c++
-void PatientRecord::createAllPieView()
-{
+void PatientRecord::createAllPieView(){
     QList<int> ages = info_Model->getAllAge();
     int blacks = 0;
     int greens = 0;
     int reds = 0;      //注释3
-    for(auto A : ages)
-    {
-        if(A >= 18 && A <= 35)
-            ++blacks;
-        else if (A < 13 || A > 55)
-            ++greens;
-        else
-            ++reds;
+    for(auto A : ages){
+        if(A >= 18 && A <= 35) ++blacks;
+        else if (A < 13 || A > 55) ++greens;
+        else ++reds;
     }
 
     age_PieSeries->clear();
