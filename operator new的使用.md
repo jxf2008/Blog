@@ -2,7 +2,7 @@
 
 对于很多初学者来说，C++的new接触的比较多，而::operator new就接触的比较少了。在开始之前，先简单的看下new
 ```c++
-int v = new int;
+int* v = new int;
 ```
 这样一条简单语句，new完成了两个工作，首先向系统申请一段内存，大小刚好可以存放一个int，第二步，在申请的内存中初始化一个int对象。由于new是c++内建的，程序员无法控制new的行为，但有些时候这就会引发一些问题，假设一家学校计划招收100名学生，但学校并不能确定能否招满，如果用new来实现这个功能，向系统申请可存放100个Student类对象的内存,初始化100个Student类，每招收到一名学生，就把一个Student对象复制一下。
 
@@ -43,11 +43,11 @@ public:
 
 ![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/github_blog/operator_new/3.png)
 
-很明显，对象student的析构函数没有被调用，这里村正内存泄漏。原因在于::operator delete并没有删除对象的作用，这是他和delete的重要区别，要想正确的析构student对象，必须在返还内存前显示的调用student的析构函数,即
+很明显，对象student的析构函数没有被调用，这里存在内存泄漏。原因在于::operator delete并没有删除对象的作用，这是他和delete的重要区别，要想正确的析构student对象，必须在返还内存前显式的调用student的析构函数,即
 ```c++
 student->~Student();
 ```
-这是C++中极少数需要显示调用类的析构函数的情况
+这是C++中极少数需要显式调用类的析构函数的情况
 
 如果需要用::operator new申请多个对象的内存，可以用下列方法
 ```c++
