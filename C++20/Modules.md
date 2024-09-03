@@ -18,11 +18,13 @@ int main(){
 
 在实际的项目中，也会出现类似的问题。比如很多C++项目都会把一些常量定义放在一个或几个.h文件里，这是一个好习惯，方便大型项目的代码管理。比如在一个关于机械设备的大型项目里，有个MachineType.h文件，用于定义某些机械的属性，该头文件里包含了数百个结构，枚举和常量的定义，这个文件目前有四千行的代码，现在项目需要添加一个新的类用于表示某种新的机械设备，该类的.h文件50行代码，而cpp文件有300行代码，这在整个工程里是个非常不起眼的类，但由于需要用到MachineType.h文件里定义的某个结构，于是在cpp文件里include了MachineType.h文件，于是cpp文件就从原来的300行增加到4300行。。。。。。而假设整个项目里一共有150个类需要用到这个MachineType.h文件，这150个类都要在其cpp文件里include这个MachineType.h文件，于是整个工程的代码变增加了150x4000行代码。。。。。。
 
+C++还存在另一个从出生便带有的问题，便是模板。C++采用了和C语言一样的声明和定义分离的策略，但这套模式在模板上却无法实现，到目前为止，所有的模板都只能把声明和定义写在一个文件里，这个文件通常是.hpp，即.h和.cpp的结合。这个问题在实现一些类或者较复杂的函数时特别明显，很多类声明只有几十行，而定义文件却有几千行甚至更多。如果是非模板代码，只要#include几十行代码，即.h文件，而如果这个类是模板，那只能把几千行甚至更多的代码全部用#include了。最常见的就是标准库的各个类，这些类大部分是模板，比如上面的iostream文件里的类，还有常用的如std::list,std::vector等,也许程序只需要在某一行代码里使用到这个类，但不得不#include几千甚至几万行代码
+
 从这里就看出，这个由include带来的问题，自C++诞生以来就一直存在，早期由于各种原因（很重要的一个原因是因为C++标准不属于某家商业公司，而是属于C++标准委员会，而该委员会的成员来自不同的商业公司，每次的标准制定，不同的委员往往会争执不休，这导致C++的很多标准的制定非常冗长），这个问题一直没能有一个有效的解决方案。直到C++20标准的发布，才终于有了一个解决方案，即C++20四大组件之一的Module。
 
 ## Hello Modules
 
-C++20使用了export和import这两个关键字来定义和导出Module，其中import在C++99/23标准中被用作模板的定义和实现的分离，但该标准后来被证明是个不靠谱的设计，当时几乎没有编辑器支持该关键字，因此在C++11标准种import被声明废弃，但保留作为关键字，现在到了C++20有了新的作用。
+C++20使用了export和import这两个关键字来定义和导出Module，其中import在C++99/03标准中被用作模板的定义和实现的分离，但该标准后来被证明是个不靠谱的设计，当时几乎没有编辑器支持该关键字，因此在C++11标准中import被声明废弃，但保留作为关键字，现在到了C++20有了新的作用。
 
 首先看如何导出一个模块的
 ```c++
@@ -74,15 +76,15 @@ int main() {
 	//print_error();
 }
 ```
-导出一个Module非常简单，使用import即可，如果取消注释，调用print_error()是无法通过编译的，编译器会提示“C3861 print_error: 找不到标识符”,因为该函数在Module中没有使用export关键字。
+导出一个Module非常简单，使用import即可，如果取消注释，调用print_error()是无法通过编译的，编译器会提示“C3861 print_error: 找不到标识符”,因为该函数在Module中没有使用export关键字，因此无法被导出。
 
 ## Module的实现分离
 
-之前的HelloModules使用的类似inline函数，并没有将实现分离，接下来演示如何通过Module来实现一个接口和实现分离的类，首先在工程里添加一个People.ixx文件用于的Module，接下来添加一个People.coo文件用于类的实现。
+之前的HelloModules使用的类似inline函数，并没有将实现分离，接下来演示如何通过Module来实现一个接口和实现分离的类，首先在工程里添加一个People.ixx文件用于的Module，接下来添加一个People.cpp文件用于类的实现。
 
 ![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/C20/H04.png)
 
-收看Module的声明
+先看Module的声明
 ```c++
 //People.ixx
 export module People;
@@ -96,8 +98,8 @@ private:
 public:
 	People();
 	People(const std::string& nm, int y);
-	~People();
-	void print_info()const;
+	virtual ~People();
+	virtual void print_info()const;
 };
 ```
 这和之前声明函数的Module差不多，类定义之前使用关键字import将该类声明为可以导出，然后是类的实现
@@ -130,3 +132,59 @@ void People::print_info()const {
 People Module和之前的HelloModule使用完全一样
 
 ![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/C20/H05.png)
+
+## 使用子Module
+
+对于大型的C++项目来说，代码的分类很重要，有助于项目和代码的组织管理。在Module中，可以非常方便的将一个Module设为另一个Module的子Module，这样不仅可以方便组织管理代码，而且可以根据需要导入指定的子Modlue，不用导入整个Module。
+
+以上面的People类为例，需要通过继承该类来定义一个Student类，和之前的People类相似，在工程中添加了一个Student.ixx的Module文件，和一个Student.cpp的实现文件。
+
+![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/C20/H06.png)
+
+这个类由于继承自People类，因此可以单独作为一个Module，也可以作为一个子Module放在People Module下，首先看下.ixx文件
+```c++
+export module People.Student;
+import People; 
+
+export class Student : public People {
+private:
+	int GPA;
+public:
+	Student(const std::string& nm, int y, int gpa);
+	Student();
+	~Student();
+	void print_info()const override;
+};
+```
+和People.ixx唯一的区别在于第一行，即该Module是People.Student,而不是Student
+
+然后是.cpp文件
+```c++
+module People.Student;
+
+import <iostream>;
+
+Student::Student(const std::string& nm, int y, int gpa):People(nm, y),GPA(gpa){
+
+}
+
+Student::Student():People(),GPA(0){
+
+}
+
+Student::~Student() {
+
+}
+
+void Student::print_info()const {
+	People::print_info();
+	std::cout << "GPA : " << GPA << std::endl;
+}
+```
+区别同样只有第一行，Student就变成了People的一个子Module，可以根据需要导入People还是单独导入People.Student。
+
+![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/C20/H07.png)
+
+这里有个#include和import的非常重要的区别，在Student.ixx文件中，导入了People Module，但和#include不同，在main.cpp文件中如果注释掉import People,即只导入了People.Student，这个时候编译会报错“C2065	“People”: 未声明的标识符”；
+
+![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/C20/H08.png)
