@@ -83,3 +83,69 @@ int main() {
 在主函数里开启了两个线程，这两个线程内执行的是一个无限循环函数（用于模拟读取较大的文件），但这两个线程都立刻终止了。第一个终止是调用std::jthread的成员函数request_stop()，该函数被调用后，线程内std::stop_token的成员函数stop_requested()的返回值为false，因此在线程内可以根据该返回值来决定释放停止正在执行的任务
 
 另一个终止线程的方法是调用线程的析构函数，thread2在创建的时候被放入了智能制造std::shared_ptr中，当主函数结束时，thread2离开了作用域，智能指针就会调用该对象的析构函数，而在std::jthread的析构函数中，也会调用std::jthread的成员函数request_stop()，从而达到停止线程的作用
+
+
+## std::async
+
+对于之前介绍的std::jthread，提供了多线程的支持，但std::jthread也存在也些不足，第一，子线程在创建的时候就会启动，而在很多实际情况下，线程需要等待一段实际再启动，比如一个读写文件的任务，创建后需要判断下目标文件是否正在被使用，如果有个更高优先级的线程在使用该文件，那该任务就需要等待其他线程结束后再启动；第二，对于一个任务是否需要放入子线程，需要根据实际情况来决定，比如读取文件时，先要判断下文件的大小，如果该文件非常的小，那单独开启一个线程去执行该任务就显得浪费了；第三，std::jthread对于线程的返回结果处理不是很好，虽然可以通过std::stop_callback来获取结果，但很多时候，我们需要一种比较简单，直接的方式来获取线程的结果。
+
+C++为此提供了另一种多线程方式，即std::async，该功能可以让用户决定何时开启线程，任务是否放置于子线程中，同时通过std::future来简单直接的获取子线程中的结果。
+
+假设有这样一个任务，需要判断一个数是否为质数，如果该数非常小，则没必要开启一个单独的线程来执行任务，但如果该数非常的巨大，那将任务放入子线程中执行是个非常明知的选择。对于这样一个任务，使用std::async会更加的合适。要使用std::async和std::future，需要头文件fucture。
+
+```c++
+#include <future>
+#include <iostream>
+#include <thread>
+#include <string>
+
+bool is_prime_number(int v, const std::string& threadName);
+
+int main() {
+	
+	int A = 97;
+	int B = 100;
+	std::cout << "Main Thread ID : " << std::this_thread::get_id() << std::endl;
+
+	//创建任务
+	std::future resFutureA = std::async(std::launch::async, is_prime_number, A, "A");
+	std::future resFutureB = std::async(std::launch::deferred, is_prime_number, B, "B");
+
+	std::cout << "-----------" << std::endl;
+	bool resA = resFutureA.get();  //开始执行任务
+	bool resB = resFutureB.get();
+	std::cout << std::to_string(A) << ":" << resA << std::endl;
+	std::cout << std::to_string(B) << ":" << resB << std::endl;
+}
+
+bool is_prime_number(int v, const std::string& threadName) {
+	std::cout << threadName << " ID :" << std::this_thread::get_id() << std::endl;
+	bool res = true;
+	for (int i = 2; i < v - 1; ++i) {
+		if (v % i == 0) {
+			res = false;
+			break;
+		}
+	}
+	return res;
+}
+```
+首先，std::async函数有三个参数，第一个参数是个枚举值，用于控制目标任务在主线程还是子线程内执行，通过该枚举值，用户可以控制任务是否在子线程内进行或者交给操作系统判断。
+
+| 枚举值 | 功能 |
+|:----:|:----:|
+|std::launch::async|在子线程内执行|
+|std::launch::deferred|在主线程内执行|
+| OR | 由操作系统决定|
+
+
+
+其次std::async函数返回值是一个std::future，这段代码里使用了该类的get()函数，该函数有两个作用，第一个启动任务，也就是说std::async创建的时候，任务不会立刻启动，而是通过std::future的get()函数来启动的，这给了用户合适启动的决定权；第二个作用就是返回线程的执行结果。
+
+该示例代码运行结果
+
+![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/C20/thread3.png)
+
+从运行结果上可以看出，“线程B”的ID和主线程的ID是一样的，也就是说，任务B是在主线程中执行的，而任务A则是不同的线程ID，说明任务A实在另一个单独的线程里执行的
+
+另外通过分割线的打印可以看出，在调用std::future的get()函数之前，任务并没有开始
