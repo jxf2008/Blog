@@ -136,7 +136,7 @@ bool is_prime_number(int v, const std::string& threadName) {
 |:----:|:----:|
 |std::launch::async|在子线程内执行|
 |std::launch::deferred|在主线程内执行|
-| OR | 由操作系统决定|
+| 位操作符OR | 由操作系统决定|
 
 
 
@@ -161,7 +161,6 @@ class FileIO{
 private:
 	int* d;   //数组，用于模拟本地文件
 	int dataLen;
-	bool allowRead;  //标记是否可以读
 public:
 	FileIO(int* data, int len);
 	~FileIO();
@@ -172,42 +171,166 @@ public:
 ```c++
 //.cpp
 void FileIO::read() {
-	if (allowRead) {
-		for (int i = 0; i < dataLen; ++i)
-			std::cout << "第" << std::to_string(i + 1) << "个数为：" << *(d + i) << std::endl;
-	}
+	for (int i = 0; i < dataLen; ++i)
+		std::cout << "第" << std::to_string(i + 1) << "个数为：" << *(d + i) << std::endl;
+
 
 }
 
 void FileIO::write() {
 	//每次写之前休眠1秒，用于模拟写入时间消耗
-	std::chrono::microseconds interval(1000);  
+	std::chrono::milliseconds interval(1000);  
 
 	for (int i = 0; i < dataLen; ++i) {
 		std::this_thread::sleep_for(interval);
 		*(d + i) = i;
 		std::cout << "第" << std::to_string(i + 1) << "个数已经完成写入：" << *(d + i) << std::endl;
 	}
-	allowRead = true;
 }
 ```
 上面的代码，主要read()和wirte()函数，如果在单线程内执行没什么问题，先执行wirte()，再执行read()。但如果这两个函数在两个不同的线程内执行（假设这两个线程分别叫writeThread和readThread），就会出现两个问题。
 
-首先read()开始执行时，allowRead的值为false，因为次数write()函数还没执行完成，这会导致read()不去读取数据而直接结束。基于此，我们希望能够readThread先停止读取数组内容，直到writeThread完成后再去读取数组
+首先read()开始执行时，因为次数write()函数还没执行完成，这会导致read()不去读取数据而直接结束。基于此，我们希望能够readThread先停止读取数组内容，直到writeThread完成后再去读取数组
 
 其次，如果由于writeThread通过一个循环来执行写的功能，但考虑到可能在循环尚未完成的时候就有一个优先级更高的线程需要读写这个数组。此时需要writeThread能够执行完这个循环后，再停止wirteThread。
 
 C++对此提供了mutex类来实现加锁，包括资源的占用，将多行代码合并为一个原子操作，而mutex的使用非常简单，只需要将需要进行原子操作的代码放入一个作用域（用大括号来限定），然后在这个作用域的第一行代码进行加锁，这样这个作用域就变成一个原子操作，类似下面的代码
 ```c++
-void File::write(){
+void FileIO::write(){
 	{  //作用域，该作用域内的操作为原子操作
 		std::unique_lock lock(mutex);  //加锁
 		//write operate..
 	}
 }
 ```
-其中mutex是在类定义中定义的成员变量，类型为std::mutex。std::unique_lock类对象在该作用域内定义，离开该作用域后，std::unique_lock类对象的析构函数会解锁，因此无需显示的解锁。
+其中mutex是在类定义中定义的成员变量，类型为std::mutex。std::unique_lock类对象在该作用域内定义，离开该作用域后，std::unique_lock类对象的析构函数会解锁，因此无需显式的解锁。
 
 通过std::mutex实现资源的占用非常简单，但这里牵扯到一个效率的问题。比如write()函数用于模拟比较耗时的写文件的功能，加锁以后read()就无法占用文件资源，必须等待write()全部完成后才能使用文件资源。但实际的情况是，大多数时候不能让某个线程占用一个资源太多的时间。一个非常常见的需求是，在write()执行了一段时间，比如循环了5次，先解锁，让read()函数先读取已经写入的5个数字，读取完成后，write()继续写入剩余的5个数字，最后read()再读取后面写入的5个数字。
 
-对于这样的需求，需要一个解锁和通知的功能。
+另外还有一个问题，就是这两个函数，必须write()先执行，因为无法读取空文件。但这就必须保证write()必须先获得锁，这个靠代码顺序是无法实现的，将write()和read()这两个成员函数封装为函数，然后放入std::jthread中执行，并不能靠代码顺序来确保write()第一个获得锁
+```c++
+std::jthread writeThread(write_data, &fileIO);
+std::jthread readThread(read_data, &fileIO);
+```
+类似上面的代码，将write()和read()分别封装如write_data(FileIO* fleIO)和read_data(FileIO* fileio)内，然后放入两个线程内执行，write()并不能保证一定先获得锁。
+
+一个版本是在这两行代码直接添加一行std::this_thread::sleep_for()，但这个是一个非常不靠谱的设计，因为无法缺点writeThread线程内的函数需要多久才能获得锁，设定休眠的时间过程，就会对CPU资源造成浪费，而且就算休眠的时间设计的够长，考虑到不同的硬件设备已经一些其他不可控因素，也不一定能确保writeThread内的函数一定能先获得锁
+
+基于以上这几点，对FileIO这个类提出了新的需求，当两个函数在不同的线程运行时，要求：
+
+1. write()必须在第一个获得锁
+2. write()函数在执行一半的任务后挂机，read()开始执行
+3. read()执行一半后挂起，write()获得锁后完成剩余的写功能
+4. write()完成写入功能后，read()再次执行，完成剩余的读功能
+
+对于以上这些功能，除了之前的std::mutex外，还需要通过变量控制来实现，这里就要用到另一个功能std:condition_variable，该类位于头文件condition_variable内。
+
+std:condition_variable类有两个非常重要的函数，一个是wait()，该函数有一个重载，第二个参数是可选的，但非常重要。wait()用于隐式的释放锁并挂机当前所在的线程，第二个参数是一个匿名函数，该匿名函数在线程启动前会被执行，起返回值为布尔值，如果该匿名函数返回true，则当前线程被唤醒，如果返回值为false，则当前线程继续休眠，也就是说，如果该匿名函数返回值为false，则当前线程被唤醒后又立刻被挂起。反之，如果该匿名函数的返回值为true，调用wait()挂起当前线程后，当前线程会立刻再次执行，不会被其他线程获得锁。
+
+之所以说wait()函数的第二个参数，也就是匿名函数非常重要，稍后可以看到通过这个匿名函数，可以确保两个线程中，有一个被挂起时，另一个肯定会被唤醒，如果不使用这个匿名函数，很容易出现两个线程同时挂起导致死锁的情况。
+
+std:condition_variable另一个比较重要的函数是notify_one()，这个函数通常在线程挂起或者结束前调用，用于通知别的线程启动。如果线程的数量比较多，也可以使用notify_all()。
+
+
+先看下FileIO的新的实现
+```c++
+//FileIO.h
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+
+class FileIO{
+private:
+	int* d;
+	int dataLen;
+	bool allowRead;   //用于控制是否允许读
+	std::mutex mutex;
+	std::condition_variable condition;
+public:
+	FileIO(int* data, int len);
+	~FileIO();
+	void read();
+	void write();
+};
+```
+```c++
+//FileIO.cpp
+const int CONDITION_INDEX = 4;  //十个数字，先写入5个，而不是一次全部写入
+
+FileIO::FileIO(int* data, int len):d(data), dataLen(len), allowRead(false){
+
+}
+
+FileIO::~FileIO() {
+
+}
+
+void FileIO::read() {
+	{
+		std::unique_lock lock(mutex);
+		if (!allowRead) { //如果read线程先启动，则直接挂起
+			condition.wait(lock, [&]() { return allowRead; });
+		}
+		for (int i = 0; i < dataLen; ++i) {
+			std::cout << "第" << std::to_string(i + 1) << "个数为：" << *(d + i) << std::endl;
+			if (i == CONDITION_INDEX) {
+				allowRead = false;
+				condition.notify_one();
+				condition.wait(lock, [&]() { return allowRead; });
+			}
+		}
+	}
+}
+
+void FileIO::write() {
+	{
+		std::unique_lock lock(mutex);
+		for (int i = 0; i < dataLen; ++i) {
+			std::chrono::milliseconds interval(100);
+			std::this_thread::sleep_for(interval);
+			*(d + i) = i + 1;
+			std::cout << "第" << std::to_string(i + 1) << "个数已经完成写入：" << *(d + i) << std::endl;
+			if (i == CONDITION_INDEX) {
+				allowRead = true;
+				condition.notify_one();
+				condition.wait(lock, [&]() { return !allowRead; });
+			}
+		}
+	}
+	allowRead = true;
+	condition.notify_one();
+}
+```
+然后是主函数，为例尽可能的模拟读线程优先获得锁的情况，这里特意把读线程的代码写在前面
+```c++
+//main.cpp
+const int LENGHT = 10;
+
+void wirte_data(FileIO* fileIO);
+void read_data(FileIO* fileIO);
+
+int main() {
+	int* d = new int[LENGHT];
+	FileIO fileIO(d,LENGHT);
+
+	std::jthread readThread(read_data, &fileIO); //模拟读先执行
+	std::jthread writeThread(wirte_data, &fileIO);
+}
+
+void wirte_data(FileIO* fileIO) {
+	fileIO->write();
+}
+
+void read_data(FileIO* fileIO) {
+	fileIO->read();
+}
+```
+在FileIO的read()函数中，第一步先判断allowRead，如果read()函数先执行，那allowRead的值为false，那此时readThread，使用wait()函数先挂起，由于此时writeThread是没有竞争到锁，而不是被主动挂起的，因此readThread没必要用notify_one()函数唤醒writeThread
+
+当readThread被挂起后，writeThread便获得了锁，于是开始执行，当写入5个数字后，先将allowRead的值设为true，然后线程通过wait()挂起，wait()函数主要做两个工作，一个是释放锁，另一个是获取第二个参数，也就是匿名函数的返回值，当成功释放锁，并且匿名函数的返回值为false时，才会挂起当前线程，最后通过notify_one()通知readThread。
+
+当readThread收到通知后，立刻尝试获取锁，在成功获取锁之后，会执行之前readThread使用的wait()函数的第二个参数，该参数的返回为allowRead，现在readThread收到通知后满足了两个条件，一是获得锁，而是wait()的匿名函数返回值为true。在满足了这两个条件后，readThread开始执行。
+
+当readThread读取5个数字后，以相同的方式挂起，并通知writeThread，而writeThread则继续执行之前的任务，也就是writeThread的代码从上次挂起的wait()函数后开始执行
+
+![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/C20/thread4.png)
