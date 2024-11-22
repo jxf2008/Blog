@@ -334,3 +334,51 @@ void read_data(FileIO* fileIO) {
 当readThread读取5个数字后，以相同的方式挂起，并通知writeThread，而writeThread则继续执行之前的任务，也就是writeThread的代码从上次挂起的wait()函数后开始执行
 
 ![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/C20/thread4.png)
+
+## 简化功能
+
+在多线程编程中，将大型任务分成诺干个部分，放在不同的线程中同时执行，最后将结果合并，这是一个非常常见的操作。在这样一个简单且常见的需求中，当主线程开启多个子线程执行任务后，需要对各线程进行监控，当最后一个线程结束时，合并各线程的计算结果。如果使用之前介绍的条件变量来实现，虽然可以，但显得有些复杂了，毕竟这是一个很常见的情况。因此，这类情况C++提供了std::latch来应对。
+
+std::latch的使用非常简单，首先设定一个数值，通常是线程的数量，设置完成后将主线程挂起并开始执行子线程的任务；其次，在每个线程执行任务完成后，将该数值减一，最后当该数值为0时，主线程自动重新开始执行。
+
+下面是将一个数组分成3个部分，计算和的代码
+```c++
+constexpr int DATA_LEN = 9;
+constexpr int GROUP_LEN = 3;
+
+int main() {
+	//第一步，设定数值为3，即使用三个线程
+	std::latch threadCount{ 3 };  
+	auto task{
+		[&](int* d, int len) {
+			int res = 0;
+			for (int i = 0; i < len; ++i)
+				res += *(d + i);
+			std::chrono::milliseconds interval((*d) * 1000);
+			std::this_thread::sleep_for(interval);
+			//第二步，调用count_down()函数将数值-1，即一个线程已经完成
+			threadCount.count_down();
+			std::cout << "RESULT:" << res << std::endl;
+			return res;
+		}
+	};
+	int* d = new int[DATA_LEN]{1,2,3,4,5,6,7,8,9};
+
+	std::future d1 = std::async(task, d, GROUP_LEN);
+	std::future d2 = std::async(task, d + GROUP_LEN, GROUP_LEN);
+	std::future d3 = std::async(task, d + GROUP_LEN * 2, GROUP_LEN);
+	std::cout << "Begin\n";
+	int res1 = d1.get();
+	int res2 = d2.get();
+	int res3 = d3.get();
+
+	//使用wait()挂起当前线程，并等待子线程的执行结果
+	threadCount.wait();
+
+	//第三步，三个子线程执行完毕，std::latch的数值变为0，则主线程自动开始继续
+	std::cout << "Result:" << res1 + res2 + res3 << std::endl;
+}
+```
+运行结果
+
+![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/C20/thread5.png)
