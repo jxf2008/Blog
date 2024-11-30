@@ -382,3 +382,72 @@ int main() {
 运行结果
 
 ![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/C20/thread5.png)
+
+## 信号量
+
+在复杂的多线程编程中，还有一类非常常见的需求，若干个线程同时使用一个资源，对于这类需求，使用之前介绍的std::mutex是个不错的选择，但由于此类需求非常的多，所以c++提供了信号量，也就是std::semaphore来解决这类问题，以减少使用std::mutex带来的复杂的编程以及测试等难题。信号量std::semaphore的设计逻辑类似std::shared_ptr，即采用一个内部的计数器，用户可以在创建对象的时候指定一个数值，这个数值等于该资源可以同时被使用的线程的数量，即假设一个文件统一时间内只能被一个线程使用，那在设计时可以将std::semaphore的值设为1，每当一个线程需要使用资源时，其内部的计数器便-1，当线程释放资源的时候，计数器就+1，因此线程需要使用资源时，先查看std::semaphore的计数器，如果计数器为0时，则认为该资源无法被使用，当前线程挂起；当计数器不为0时，则说明此时资源可以被使用，则当前线程立刻恢复执行
+
+std::semaphore的使用非常简单，这里设计一个可以读写文件的类，写入函数使用休眠来模拟写入所需要占用的时间，而读取函数则需要等待写入函数完成以后才能开始执行，即需要等写入函数释放资源（文件）后再执行。
+
+```c++
+// FileIO.h
+class FileIO{
+private:
+	std::binary_semaphore fileUser;
+public:
+	FileIO();
+	~FileIO();
+	void read();
+	void write();
+};
+```
+```c++
+//FileIO.cpp
+FileIO::FileIO():fileUser(0) {
+
+}
+
+FileIO::~FileIO() {
+
+}
+
+void FileIO::read() {
+	fileUser.acquire();
+	std::cout << "Read File\n";
+	fileUser.release();
+}
+
+void FileIO::write() {
+	std::cout << "Write Begin\n";
+	std::chrono::milliseconds interval(1000);
+	std::this_thread::sleep_for(interval);
+	std::cout << "Write End\n";
+	fileUser.release();
+}
+```
+在FileIO的构造函数里，将std::semaphore的值设为0，是因为文件此时不能被读取，只有等写入函数执行完成后才能使用。在write()函数中，使用休眠一秒来模拟文件的写入时间，写入完成后，调用std::semaphore的release()来释放资源，该函数会将其内部的计数器+1
+
+在read()函数中，首先调用std::semaphore的acquire()函数来确认其内部的计数器，如果计数器为0，则挂起当前线程，直到计数器不为0的时候，再重新开始执行。
+
+然后是在主函数中调用
+```c++
+void write_file(FileIO* file);
+void read_file(FileIO* file);
+
+int main() {
+	FileIO fileIO{};
+	std::jthread readThread(read_file, &fileIO);
+	std::jthread writeThread(write_file, &fileIO);
+}
+
+void write_file(FileIO* file) {
+	file->write();
+}
+
+void read_file(FileIO* file) {
+	file->read();
+}
+```
+在代码中，将读取函数写在写入函数之前，这样有很大的概率read()函数会在write()函数之前开始执行，但即使read()率先被执行，由于std::semaphore内部计数器此时为0，因此read()会被挂起，直到write()执行完成后，计数器+1后再执行
+
+![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/C20/thread6.png)
