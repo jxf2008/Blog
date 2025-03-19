@@ -5,7 +5,7 @@
 
 >关于Window XP
 
-Qt 5.7是最后一个支持Window XP的版本,如果你希望你的程序能够在该系统上运行，只能选择5.7或更低版本
+Qt 5.6是最后一个支持Window XP的版本,如果你希望你的程序能够在该系统上运行，只能选择5.6或更低版本
 
 ## 安装
 
@@ -54,5 +54,5 @@ Qt 5.7是最后一个支持Window XP的版本,如果你希望你的程序能够�
 
 其中~\Qt\5.12.3\mingw73_64\bin这里包含了编译Qt需要的各种（MingW版的）文件，~\Qt\Tools\mingw730_64\bin包含了MingW编译器，里面包括了gcc.exe,g++.exe等，~\Qt\Tools\QtCreator\bin包括的Qt自带的工具QtCreator。
 
-这三个加入环境变量,如何添加环境变量根据你使用的操作系统可能会略有不同，详细请自行[谷歌](www.google.com)/[Bing](www.bing.com)/[百度](www.baidu.com)。。。。。
+这三个加入环境变量,如何添加环境变量根据你使用的操作系统可能会略有不同。
 
