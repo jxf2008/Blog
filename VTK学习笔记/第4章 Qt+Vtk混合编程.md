@@ -1,4 +1,4 @@
-本章内容假设你已经非常熟悉Qt的编程，如果未说明，则Qt的版本是6.5.2。另外如果运行本章示例，请确定VTK编译了Qt相关模块，因为VTK很多版本默认是不编译Qt相关模块的，编译相关请参见VS2022+VTK9.4安装
+本章内容假设你已经非常熟悉Qt的编程，如果未说明，则Qt的版本是6.5.2。另外如果运行本章示例，请确定VTK编译了Qt相关模块，因为VTK很多版本默认是不编译Qt相关模块的，编译相关请参见[VS2022+VTK9.4.1安装](https://github.com/jxf2008/Blog/blob/master/VTK%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E7%AC%AC0%E7%AB%A0%20VS2022%2BVTK9.4.1%E5%AE%89%E8%A3%85.md)
 
 Qt是一个非常成熟的跨平台GUI框架，在使用VTK的时候，大部分时间是在某个GUI程序中调用VTK；虽然VTK也提供了一些GUI相关的类，但这些类的功能往往只是最基本的功能，因此在在实际项目中，往往是使用Qt来构建GUI界面，而VTK实现模型渲染，因此Qt+VTK混合编程就显得非常必要
 
@@ -123,8 +123,5 @@ int main(int argc, char** argv) {
 ```
 运行后，点击"Show"变可以显示VTK模型
 
-![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/github_blog/VTK4-4.png)
+![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/github_blog/VTK4-4.gif)
 
-点击"Show"
-
-![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/github_blog/VTK4-5.png)
