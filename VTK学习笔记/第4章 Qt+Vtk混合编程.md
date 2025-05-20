@@ -381,3 +381,119 @@ int main(int argc, char** argv) {
 	return app.exec();
 }
 ```
+
+## 使用CMake构建Qt和VTK
+
+在Qt6之前，Qt官方一直使用自己的qmake作为构建工具，而Qt6以后，Qt官方则推荐使用CMake来构建Qt项目，而VTK官方的示例也都是使用CMake进行构建的，因此这里演示下使用CMake来构建之前的Qt+VTK的示例。
+
+首先创建一个Qt项目，创建时有两个选项“Qt Project”和“CMake For Project”，这里选择“CMake For Project”
+
+![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/github_blog/VTK4-7.png)
+
+点击“Finish”后，一个空的Qt项目创建完成，文件结构如下
+
+![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/github_blog/VTK4-8.png)
+
+项目中有两个CMakeList.txt，其中./CMakeList.txt是将项目作为子项目，以供其他项目调用；而./ProjectName/CMakeList.txt则是用于构建当前项目的，稍后修改CMakeList.txt都是只这个
+
+创建项目完成后，将之前的示例中的代码文件都复制到工程目录下，工程结构如下
+
+![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/github_blog/VTK4-9.png)
+
+然后打开./ProjectName/CMakeList.txt，目前是一个空的Qt项目的默认构建
+```cmake
+cmake_minimum_required(VERSION 3.16)
+project(QCmakeProject LANGUAGES CXX)
+
+include(qt.cmake)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
+find_package(Qt${QT_VERSION_MAJOR}
+    COMPONENTS
+        Core
+)
+qt_standard_project_setup()
+
+qt_add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
+
+set_target_properties(${PROJECT_NAME}
+    PROPERTIES
+        WIN32_EXECUTABLE TRUE
+)
+
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+        Qt::Core
+)
+```
+
+然后需要对该CMakeList.txt做出修改，如下
+```cmake
+cmake_minimum_required(VERSION 3.16)
+project(QCmakeProject LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+#Qt6.5以后版本不用包含qt.cmake
+set(VERSION_MAJOR 0)
+set(VERSION_MINOR 0)
+set(VERSION_PATCH 1)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+
+#增加Qt模块，包括对opengl支持的模块
+#电脑上有多个Qt版本,必须确定是Qt5还是Qt6
+find_package(Qt6 REQUIRED COMPONENTS 
+    Core 
+    Widgets 
+    Gui 
+    OpenGL 
+    OpenGLWidgets)
+
+
+#添加vtk的模块
+find_package(VTK COMPONENTS 
+  CommonCore
+  CommonDataModel
+  CommonColor
+  FiltersSources
+  InteractionStyle
+  GUISupportQt
+  InteractionStyle
+  RenderingContextOpenGL2
+  RenderingCore
+  RenderingFreeType
+  RenderingGL2PSOpenGL2
+  RenderingOpenGL2
+  GUISupportQt
+  RenderingQt
+  REQUIRED
+)
+
+set(project_headers ClickModelCMD.h QColorSetDialog.h) 
+set(project_sources ClickModelCMD.cpp QColorSetDialog.cpp main.cpp)
+
+
+add_executable(${PROJECT_NAME} WIN32 ${project_headers} ${project_sources})
+
+#连接Qt库，如果有多个Qt版本，必须标明是Qt6
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Widgets
+        Qt6::OpenGL
+        Qt6::OpenGLWidgets
+        ${VTK_LIBRARIES}
+)
+
+```
+在创建的默认CMakeList.txt，包含了qt.cmake这个文件，这是因为Qt6在使用CMake构建项目时，在6.2之前和6.5之前，构建方式有所不同，由于我使用的是Qt6.5版本，Qt已经统一了构建方式，因此也就不存在这个问题，所以直接将设置写在上面，而不用包含qt.cmake
+
+最后是CMake项目运行
+
+![](https://jxf2008-1302581379.cos.ap-nanjing.myqcloud.com/github_blog/VTK4-10.png)
