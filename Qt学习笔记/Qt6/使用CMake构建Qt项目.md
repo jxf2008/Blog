@@ -84,10 +84,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #由于我的电脑上有Qt5和Qt6，因此find_packge()函数必须删除有关Qt5的部分
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
 
-#这是一个Qt相关的设置函数，大部分Qt有关CMake的设置内容都由这个函数进行设置
-#比如MOC宏开关，UI编译工具UIC开关等，都由这个函数设置
-#因此用CMake构建Qt工程大部分内容不需要我们自己手动去设置
-qt_standard_project_setup()
+#设置MOC编译开关
+set(CMAKE_AUTOMOC ON)
+
+#设置UI编译工具UIC开关，如果你使用纯代码编写界面，这个可以不用打卡，即可以忽略改行
+set(CMAKE_AUTOUIC ON)
+
+#上面两行是之前函数qt_standard_project_setup()的内容，该函数位于qt.make内
+#由于不使用qt.make，因此这里直接设置MOC和UIC工具的开关
 
 #这里增加了一个set()函数，用于提供源文件
 #由于这个工程只有一个main.cpp文件，如果增加文件，还需要一个
