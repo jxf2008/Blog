@@ -77,7 +77,12 @@ int main(int argc, char** argv) {
 cmake_minimum_required(VERSION 3.16)
 project(CMakeProject LANGUAGES CXX)
 
-#删除了include(qt.cmake)，这个Qt6.5以后就不用了
+
+#这个文件包含了2个Qt在CMake中的2个常用的宏，在大型工程中
+#可以将这个文件放在某个位置，所有Qt相关工程都包含同一个qt.make，而不用每个工程里都放一个
+include(qt.cmake)
+
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -91,7 +96,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
 #上面两行是之前函数qt_standard_project_setup()的内容，该函数位于qt.make内
-#由于不使用qt.make，因此这里直接设置MOC和UIC工具的开关
+#如果不使用qt.make，可以像这里直接设置MOC和UIC工具的开关
 
 #这里增加了一个set()函数，用于提供源文件
 #由于这个工程只有一个main.cpp文件，如果增加文件，还需要一个
@@ -99,6 +104,7 @@ set(CMAKE_AUTOUIC ON)
 set(PROJECT_SOURCES main.cpp)
 
 #同时qt_add_executable()函数后面也要增加一个变量${PROJECT_HEADERS}用于包含文件
+#这个qt_add_executable()其实就是CMake的add_executable()
 qt_add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 
 
